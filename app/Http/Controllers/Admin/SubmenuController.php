@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Models\Menu;
 use Illuminate\Http\Request;
 use App\Models\Submenus;
 
@@ -27,7 +29,8 @@ class SubmenuController extends Controller
     public function create()
     {
         $title = 'Create Submenu';
-        return view('admin.submenu.create', compact('title'));
+        $menus = Menu::orderBy('menu', 'asc')->get();
+        return view('admin.submenu.create', compact('title', 'menus'));
     }
 
     /**

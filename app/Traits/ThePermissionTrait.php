@@ -4,7 +4,9 @@ namespace App\Traits;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
-use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route;
+
+// use Illuminate\Routing\Route;
 
 trait ThePermissionTrait
 {
@@ -54,7 +56,7 @@ trait ThePermissionTrait
 
             if (!isset(auth()->user()->getRole->permission['name']["$menuName->id"]['view']) && Route::is("$baseRoute.index")) {
                 return abort(401);
-            }
+              }
 
             if (!isset(auth()->user()->getRole->permission['name']["$menuName->id"]['create']) && Route::is("$baseRoute.create")) {
                 return abort(401);

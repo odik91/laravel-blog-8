@@ -584,7 +584,7 @@ class allDataSeeder extends Seeder
                 'address' => 'first road',
                 'phone' => '123123',
                 'image' => 'users.png',
-                'role_id' => 1,
+                'role_id' => 2,
                 'is_active' => 2,
                 'password' => '$2y$10$RNNtisVqXtD3.1tYFFBWieBMUoULnkTWsNOWAtbqMLj294J4QYivq',
             ],

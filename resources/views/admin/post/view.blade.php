@@ -65,8 +65,8 @@
                 aria-disabled="true">Category: {{ $post->getCategory['name'] }}</a>
               <a href="#" class="btn btn-sm btn-outline-primary disabled" tabindex="-1" role="button"
                 aria-disabled="true">Subcategory: {{ $post->getSubcategory['subname'] }}</a>
-              <a href="#" class="btn btn-sm btn-outline-danger disabled" tabindex="-1" role="button"
-                aria-disabled="true">By: {{ $post->getUser['name'] }}</a>
+              <a href="#" class="btn btn-sm btn-outline-danger disabled" tabindex="-1" role="button" aria-disabled="true">By: {{ $post->getUser['name'] }}</a>
+              <a href="#" class="btn btn-sm btn-outline-danger disabled" tabindex="-1" role="button" aria-disabled="true">Article Publish: {{ $post['publish'] == 1 ? 'Publish' : 'Not Publish' }}</a>
               <a href="#" class="btn btn-sm btn-outline-secondary disabled float-right" tabindex="-1" role="button"
                 aria-disabled="true"><i class="far fa-calendar-alt pr-1"></i>
                 @php

@@ -73,10 +73,6 @@
                   </tr>
                 </tfoot>
                 <tbody>
-                  @php
-                  $menu_id = explode(',', $permission['menu_id']);
-                  $menus = App\Models\Menu::whereIn('id', $menu_id)->get();
-                  @endphp
                   @foreach ($menus as $menu)
                   @if (count(App\Models\Submenus::where('menu_id', $menu['id'])->get()) > 0)
                   <tr>

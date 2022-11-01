@@ -78,7 +78,7 @@
                       </tr>
                     </tfoot>
                     <tbody>
-                      @foreach (App\Models\Menu::orderBy('menu', 'asc')->get() as $menu)
+                      @foreach ($menus as $menu)
                         @if (count(App\Models\Submenus::where('menu_id', $menu['id'])->get()) > 0)
                           <tr>
                             <td>{{ $menu['menu'] }}</td>

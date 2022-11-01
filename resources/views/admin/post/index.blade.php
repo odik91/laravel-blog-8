@@ -43,6 +43,7 @@
                   <th>Content</th>
                   <th>Image</th>
                   <th>Author</th>
+                  <th>Publish</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -54,10 +55,11 @@
                   <td>{{ $post['slug'] }}</td>
                   <td>{{ ucfirst($post->getCategory['name']) }}</td>
                   <td>{{ ucfirst($post->getSubcategory['subname']) }}</td>
-                  <td>{{ $post['views'] }}</td>
+                  <td>{{ $post['views'] > 0 ? $post['views'] : 'No visitor yet' }}</td>
                   <td>{!! strip_tags(substr($post['content'], 0, 150)) !!}...</td>
                   <td><img src="{{ asset('image/post-image/' . $post['image']) }}" alt="" class="img-thumbnail" width="150"></td>
                   <td>{{ ucfirst($post->getUser['name']) }}</td>
+                  <td>{{ $post['publish'] == 1 ? 'Publish' : 'Not Publish' }}</td>
                   <td>
                     <a href="{{ route('posts.show', $post['id']) }}" class="btn btn-info mb-1" title="view"><i
                         class="far fa-eye"></i></a>

@@ -39,7 +39,7 @@
                   <label for="menu_id">Base Menu</label>
                   <select name="menu_id" id="menu_id" class="form-control @error('menu_id') is-invalid @enderror" required>
                     <option selected disabled>Select Base Menu</option>
-                    @foreach (App\Models\Menu::orderBy('id', 'asc')->get() as $menu)
+                    @foreach ($menus as $menu)
                     <option value="{{ $menu['id'] }}">{{ $menu['menu'] }}</option>
                     @endforeach
                     @error('menu_id')

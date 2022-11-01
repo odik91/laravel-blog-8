@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Menu;
 use Illuminate\Http\Request;
 use App\Models\Permission;
 
@@ -28,7 +29,13 @@ class PermissionController extends Controller
     public function create()
     {
         $title = 'Create Permission';
-        return view('admin.permission.create', compact('title'));
+        $menus = null;
+        if (auth()->user()->getRole['name'] != 'Developer') {
+            $menus = Menu::where('menu', '!=', 'Menu')->where('menu', '!=', 'Submenu')->get();
+        } else {
+            $menus = Menu::orderBy('menu', 'asc')->get();
+        }
+        return view('admin.permission.create', compact('title', 'menus'));
     }
 
     /**
@@ -66,7 +73,6 @@ class PermissionController extends Controller
         } else {
             return redirect()->back()->with('message', 'Permission not created');
         }
-
     }
 
     /**
@@ -80,8 +86,16 @@ class PermissionController extends Controller
         $title = 'View Permission';
         $permission = Permission::where('id', $id)->first();
         $id = $id;
+        $menu_id = explode(',', $permission['menu_id']);
+        $menus = null;
 
-        return view('admin.permission.view', compact('title', 'permission', 'id'));
+        if (auth()->user()->getRole['name'] != 'Developer') {
+            $menus = Menu::where('menu', '!=', 'Menu')->where('menu', '!=', 'Submenu')->get();
+        } else {
+            $menus = Menu::orderBy('menu', 'asc')->get();
+        }       
+
+        return view('admin.permission.view', compact('title', 'permission', 'id', 'menus'));
     }
 
     /**
@@ -110,7 +124,7 @@ class PermissionController extends Controller
         $this->validate($request, [
             'role_id' => 'required|unique:permissions,menu_id,' . $id,
         ]);
-        
+
         $menu_id = '';
         if (sizeof($request['enable']) > 0) {
             for ($i = 0; $i < sizeof($request['enable']); $i++) {

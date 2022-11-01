@@ -143,7 +143,7 @@
                     <input type="radio" name="options" id="option1" value="1" checked> Active
                   </label>
                   <label class="btn btn-secondary">
-                    <input type="radio" name="options" value="0" id="option2"> Unactive
+                    <input type="radio" name="options" value="0" id="option2"> Deactivated
                   </label>
                 </div>
               </div>

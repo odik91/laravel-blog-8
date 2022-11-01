@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\SubCategory;
+use DOMDocument;
 use Illuminate\Support\Str;
 // use Image;
 use Intervention\Image\Facades\Image;
@@ -50,10 +52,9 @@ class PostController extends Controller
             'category' => 'required',
             'subcategory' => 'required',
             'picture' => 'mimes:jpg,jpeg,png',
-            'article' => 'required|min:10'
+            'article' => 'required|min:10',
+            'publish' => 'required',
         ]);
-
-        $title = $request['title'];
 
         $content = $request['article'];
         $dom = new \DOMDocument();
@@ -69,12 +70,12 @@ class PostController extends Controller
             list($e, $data) = explode(',', $data);
             $imageData[$key] = base64_decode($data);
             $uniqueName = date_timestamp_get(date_create());
-            $imageName[$key] = '/image/post-image/' . date('timestamp') . time() . $uniqueName . $imageFiles[$key]->getAttribute('data-filename');
-            $path = public_path() . $imageName[$key];
+            $imageName[$key] = date('timestamp') . time() . $uniqueName . $imageFiles[$key]->getAttribute('data-filename');
+            $path = public_path() . '/image/post-image/' . $imageName[$key];
             file_put_contents($path, $imageData[$key]);
             $imageFile->removeAttribute('src');
-            $imageFile->setAttribute('src', $imageName[$key]);
-            array_push($arrImg, substr($imageName[$key], 12));
+            $imageFile->setAttribute('src', '/image/post-image/'. $imageName[$key]);
+            array_push($arrImg, $imageName[$key]);
         }
 
         $content = $dom->saveHTML();
@@ -98,7 +99,7 @@ class PostController extends Controller
                 $const->aspectRatio();
             })->save($pathImage . '/' . $image);
         }
-        
+
         $data = [
             'title' => ($request['title']),
             'slug' => Str::slug(strtolower($request['title'])),
@@ -107,28 +108,26 @@ class PostController extends Controller
             'content' => $content,
             'image' => $image,
             'author' => auth()->user()->id,
+            'publish' => $request['publish'],
             'year' => date("Y"),
             'month' => date("m"),
         ];
-        
+
         $create = Post::create($data);
 
         if ($create) {
             $post = Post::where('title', $request['title'])->first();
             for ($i = 0; $i < sizeof($arrImg); $i++) {
-                $imageArchive = explode("/", $arrImg[$i]);
-                $list['image_name'] = $imageArchive[1];
+                $list['image_name'] = $arrImg[$i];
                 $list['unique_post_id'] = $post['id'];
                 PostImage::create($list);
             }
-            return redirect()->back()->with('message', "Post $request->title created successfully");
+            return redirect()->route('posts.index')->with('message', "Post $request->title created successfully");
         } else {
             for ($i = 0; $i < sizeof($arrImg); $i++) {
-                $imageArchive = explode("/", $arrImg[$i]);
-                $list['image_name'] = $imageArchive[1];
-                unlink(public_path("image/post-image/{$list['image_name']}"));
+                unlink(public_path("image/post-image/{$arrImg[$i]}"));
             }
-            return redirect()->back()->with('message', "Post $request->title fail to add");
+            return redirect()->route('posts.index')->with('message', "Post $request->title fail to add");
         }
     }
 
@@ -175,28 +174,113 @@ class PostController extends Controller
             'category' => 'required',
             'subcategory' => 'required',
             'picture' => 'mimes:jpg,jpeg,png',
-            'article' => 'required|min:10'
+            'article' => 'required|min:10',
+            'publish' => 'required'
         ]);
 
         $post = Post::find($id);
+        $oldContent = $post['content'];
+
+        $domOldArticle = new \DOMDocument();
+        $domOldArticle->loadHTML($oldContent, LIBXML_HTML_NOIMPLIED | libxml_use_internal_errors(true));
+        $findImages = $domOldArticle->getElementsByTagName('img');
+        $oldImages = [];
+
+        foreach ($findImages as $key => $findImage) {
+            $data = $findImage->getAttribute('src');
+            $data = explode('/', $data);
+            array_push($oldImages, $data[3]);
+        }
+
+        $content = $request['article'];
+        $dom = new \DOMDocument();
+        $dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | libxml_use_internal_errors(true));
+        $imageFiles = $dom->getElementsByTagName('img');
+        $arrayImage = [];
+
+        foreach ($imageFiles as $key => $imageFile) {
+            $data = $imageFile->getAttribute('src');
+            if (strpos($data, ';') === false) {
+                continue;
+            }
+            list($type, $data) = explode(';', $data);
+            list($e, $data) = explode(',', $data);
+            $imageData[$key] = base64_decode($data);
+            $uniqueName = date_timestamp_get(date_create());
+            $imageName[$key] = date('timestamp') . time() . $key . $uniqueName . $imageFiles[$key]->getAttribute('data-filename');
+            $path = public_path() . "/image/post-image/" . $imageName[$key];
+            file_put_contents($path, $imageData[$key]);
+            $imageFile->removeAttribute('src');
+            $imageFile->setAttribute('src', '/image/post-image/'. $imageName[$key]);
+            array_push($arrayImage, $imageName[$key]);
+        }
+
+        $content = $dom->saveHTML();
+
+        // check if image is not used in post
+        $checkNewImage =  new \DOMDocument();
+        $checkNewImage->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | libxml_use_internal_errors(true));
+        $newImages = $dom->getElementsByTagName('img');
+        $newArrayImages = [];
+        foreach ($newImages as $key => $newImage) {
+            $data = $newImage->getAttribute('src');
+            $data = explode('/', $data);
+            if (isset($data[3])) {
+                $name = $data[3];
+                array_push($newArrayImages, $name);
+            } else {
+                array_push($newArrayImages, $data[0]);
+            }
+        }
+
         $image = $post['image'];
 
         if ($request->hasFile('picture')) {
-            unlink(public_path("post/{$post['image']}"));
-            $image = $request['picture']->hashName();
-            $request['picture']->move(public_path('post'), $image);
+            unlink(public_path("image/post-image/{$post['image']}"));
+            $image = time() . $request['picture']->hashName();
+            $pathImage = public_path('/image/post-image');
+            $resizeImage = Image::make($request['picture']->path());
+            $resizeImage->resize(1024, 1024, function ($const) {
+                $const->aspectRatio();
+            })->save($pathImage . '/' . $image);
         }
 
-        $data['title'] = $request['title'];
-        $data['slug'] = Str::slug($request['title']);
-        $data['category_id'] = $request['category'];
-        $data['sub_category_id'] = $request['subcategory'];
-        $data['content'] = $request['article'];
-        $data['image'] = $image;
-        $data['author'] = 1;
+        $data = [
+            'title' => ($request['title']),
+            'slug' => Str::slug(strtolower($request['title'])),
+            'category_id' => $request['category'],
+            'sub_category_id' => $request['subcategory'],
+            'content' => $content,
+            'image' => $image,
+            'author' => auth()->user()->id,
+            'publish' => $request['publish'],
+        ];
 
-        $post->update($data);
-        return redirect()->route('posts.index')->with('message', "Post $request->title updated successfully");
+        $update = $post->update($data);
+
+        if ($update) {
+            $post = Post::where('title', $request['title'])->first();
+            for ($i = 0; $i < sizeof($arrayImage); $i++) {
+                $list['image_name'] = $arrayImage[$i];
+                $list['unique_post_id'] = $post['id'];
+                PostImage::create($list);
+            }
+
+            $arrayRemoveimage = array_diff($oldImages, $newArrayImages);
+            $arrayRemoveimage = implode("/", $arrayRemoveimage);
+            $arrayRemoveimage = explode("/", $arrayRemoveimage);
+            if (sizeof($arrayRemoveimage) > 0) {
+                for ($i = 0; $i < sizeof($arrayRemoveimage); $i++) {
+                    if ($arrayRemoveimage[$i] != "") {
+                        PostImage::where('image_name', $arrayRemoveimage[$i]);
+                        unlink(public_path("image/post-image/{$arrayRemoveimage[$i]}"));
+                    }
+                }
+            }
+            return redirect()->route('posts.index')->with('message', "Post $request->title updated successfully");
+        } else {
+            return redirect()->route('posts.index')->with('message', "Post $request->title fail to update");
+        }
     }
 
     /**
@@ -278,12 +362,8 @@ class PostController extends Controller
     {
         $this->validate($request, [
             'image' => 'mimes:jpeg,jpg,png'
-        ]);
-
-        // $imageName = $request['image']->hashName();
-        $imageName = $request['image']->hashName();
-
-        // $request->image->move(public_path('post'), $imageName);
+        ]); 
+        $imageName = $request['image']->hashName(); 
 
         return Response()->json($imageName);
     }

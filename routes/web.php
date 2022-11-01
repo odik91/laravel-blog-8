@@ -1,17 +1,17 @@
 <?php
 
 use App\Http\Controllers\BlogingController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MenuController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PostController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SubcategoryController;
-use App\Http\Controllers\SubmenuController;
+use App\Http\Controllers\Admin\SubmenuController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -37,8 +37,12 @@ Route::get('/', function () {
 Auth::routes();
 
 
-// Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'isAdmin']], function () {
-Route::group(['prefix' => 'admin'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'isAdmin']], function () {
+// Route::group(['prefix' => 'admin'], function () {
+    Route::get('/', function () {
+        return redirect()->route('home');
+    });
+
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Category

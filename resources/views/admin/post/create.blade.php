@@ -102,6 +102,14 @@
                       @enderror
                     </div>
                   </div>
+                  <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn bg-olive active">
+                      <input type="radio" name="publish" id="option1" value="1" checked> Active
+                    </label>
+                    <label class="btn bg-olive">
+                      <input type="radio" name="publish" value="0" id="option2"> Deactivated
+                    </label>
+                  </div>
                 </div>
                 <!-- /.card-body -->
 
@@ -109,11 +117,6 @@
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
               </form>
-              {{-- <form action="{{ route('upload.image') }}" method="POST" enctype="multipart/form-data" id="testImage">
-              @csrf
-              <input type="file" name="image" id="" accept="image/*">
-              <button type="submit">test</button>
-            </form> --}}
             </div>
             <!-- /.card -->
           </div>
@@ -271,5 +274,7 @@
         });
       }
     });
+
+    $().button('toggle')
   </script>
 @endpush
