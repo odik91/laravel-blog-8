@@ -370,7 +370,7 @@
             <div class="flex-wr-sb-s p-t-40 p-b-15 how-bor2">
               <a href="{{ route('article.view', [$post['slug']]) }}"
                 class="size-w-8 wrap-pic-w hov1 trans-03 w-full-sr575 m-b-25">
-                <img src="{{ asset('post/' . $post['image']) }}" alt="IMG">
+                <img src="{{ asset('image/post-image/' . $post['image']) }}" alt="IMG">
               </a>
               <div class="size-w-9 w-full-sr575 m-b-25">
                 <h5 class="p-b-12">

@@ -56,7 +56,7 @@
             @foreach (App\Models\Post::orderBy('views', 'desc')->limit('3')->get() as $post)
             <li class="flex-wr-sb-s p-b-20">
               <a href="{{ route('article.view', [$post->getCategory['slug']]) }}" class="size-w-4 wrap-pic-w hov1 trans-03">
-                <img src="{{ asset('post/' . $post['image']) }}" alt="IMG">
+                <img src="{{ asset('image/post-image/' . $post['image']) }}" alt="IMG">
               </a>
 
               <div class="size-w-5">
