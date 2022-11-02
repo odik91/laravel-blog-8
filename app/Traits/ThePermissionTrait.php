@@ -50,13 +50,16 @@ trait ThePermissionTrait
                 case "permission":
                     $baseRoute = 'permission';
                     break;
+                case 'comment':
+                    $baseRoute = 'comment';
+                    break;
                 default:
                     $baseRoute = 'dashboard';
             }
 
             if (!isset(auth()->user()->getRole->permission['name']["$menuName->id"]['view']) && Route::is("$baseRoute.index")) {
                 return abort(401);
-              }
+            }
 
             if (!isset(auth()->user()->getRole->permission['name']["$menuName->id"]['create']) && Route::is("$baseRoute.create")) {
                 return abort(401);
@@ -87,12 +90,12 @@ trait ThePermissionTrait
             // }
         }
 
-        if (!isset(auth()->user()->getRole->permission['name']["7"]['other']) && Route::is("message.index")) {
-            return abort(401);
-        }
+        // if (!isset(auth()->user()->getRole->permission['name']["7"]['other']) && Route::is("message.index")) {
+        //     return abort(401);
+        // }
 
-        if (!isset(auth()->user()->getRole->permission['name']["13"]['other']) && Route::is("comment.index")) {
-            return abort(401);
-        }
+        // if (!isset(auth()->user()->getRole->permission['name']["11"]['other']) && Route::is("comment.index")) {
+        //     return abort(401);
+        // }
     }
 }
